@@ -1,0 +1,18 @@
+/* Colours only */
+:root{
+  --page:#eaf2f1; --page-2:#f3f1ea;
+  --card:#ffffff; --edge:#cfdcdc; --field:#ffffff;
+  --ink:#10202a; --ink-soft:#33454e;
+  --accent:#0e6b73; --accent-2:#0a545b; --accent-text:#fff; --accent-soft:#dff1f2;
+  --free:#e2f3ea; --free-ink:#10202a; --free-edge:#b5dcc7;
+  --busy:#f2d7a6; --busy-ink:#10202a;
+  --peak:#a85a00; --peak-bg:#fff0dc;
+  --bad:#b4233f; --bad-bg:#fde8ec;
+  --good:#0b6b46; --good-bg:#dff5ea;
+  --code-bg:#101c22; --code-ink:#d5e4ea; --code-dim:#5f7983;
+  --focus:#0e6b73;
+  --font-ui:'DM Sans',system-ui,sans-serif; --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --hero-1:#d3eae7; --hero-2:#d3eae7;
+  --c-mint:#e3f1ee; --c-sky:#e3f1ee; --c-sand:#e3f1ee; --c-rose:#e3f1ee;
+  --card-a:#f7fbfa; --card-b:#f7fbfa;
+}

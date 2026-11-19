@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parking Lot Management System: live demo of a C project (SDLC).">
+<title>Parking Lot Management System</title>
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div>
+      <p class="eyebrow">SDLC project &middot; C, now in the browser</p>
+      <h1>Parking Lot Management System</h1>
+      <p class="lead">Check vehicles in and out, watch the 50 slots fill up and get a bill. It follows the same rules as my C project.</p>
+    </div>
+  </header>
+
+  <section class="stats" aria-label="Lot summary">
+    <div class="stat"><b id="sAvail">0</b><span>Available</span></div>
+    <div class="stat"><b id="sOcc">0</b><span>Occupied</span></div>
+    <div class="stat"><b><span id="sTotal" style="all:unset">50</span></b><span>Total slots</span></div>
+    <div class="stat"><b id="sUse">0%</b><span>Slot usage</span><div class="meter"><i id="sMeter"></i></div></div>
+  </section>
+
+  <div class="grid">
+
+    <section class="card" aria-labelledby="lotTitle">
+      <h2 id="lotTitle">Parking slots</h2>
+      <p class="hint">Slots are given out in order, A-1 first. Tap a slot to see who is parked there.</p>
+      <div class="legend"><span><i style="background:var(--free);border:1.5px solid var(--free-edge)"></i>Available</span><span><i style="background:var(--busy);border:1.5px solid #e0bb7a"></i>Occupied</span></div>
+      <div class="lot" id="lot"></div>
+      <p class="slotinfo" id="slotInfo" aria-live="polite"></p>
+      <button class="btn btn--ghost btn--sm" id="reset" type="button">Reset demo data</button>
+    </section>
+
+    <section class="card" aria-label="Actions">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-panel="pIn" type="button">Check-in</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="pOut" type="button">Check-out</button>
+        <button class="tab" role="tab" aria-selected="false" data-panel="pAdmin" type="button">Admin</button>
+      </div>
+
+      <div class="panel" id="pIn">
+        <form id="inForm" autocomplete="off">
+          <label>Vehicle ID<input name="id" placeholder="e.g. DHK-1234" required></label>
+          <div>
+            <div style="font:600 .8rem var(--font-ui);color:var(--ink-soft);margin-bottom:6px">Vehicle type</div>
+            <div class="types">
+              <label><input type="radio" name="type" value="1" checked>Car</label>
+              <label><input type="radio" name="type" value="2">Bike</label>
+              <label><input type="radio" name="type" value="3">Truck</label>
+            </div>
+          </div>
+          <div class="row2">
+            <label>Owner name<input name="owner" required></label>
+            <label>Entry time<input type="time" name="entry" required></label>
+          </div>
+          <button class="btn" type="submit">Check in</button>
+        </form>
+        <div class="msg" id="inMsg" hidden role="status"></div>
+      </div>
+
+      <div class="panel" id="pOut" hidden>
+        <form id="outForm" autocomplete="off">
+          <div class="row2">
+            <label>Vehicle ID<input name="id" required></label>
+            <label>Exit time<input type="time" name="exit" required></label>
+          </div>
+          <button class="btn" type="submit">Check out and bill</button>
+        </form>
+        <div class="msg" id="outMsg" hidden role="status"></div>
+        <div class="receipt" id="receipt" hidden></div>
+        <p class="hint" style="margin-top:14px">Tk 100 per hour, any part of an hour counts as a full hour, minimum 1 hour. Same-day parking only.</p>
+      </div>
+
+      <div class="panel" id="pAdmin" hidden>
+        <div id="adminLogin">
+          <form id="loginForm" autocomplete="off">
+            <div class="cred">Demo login: <code>admin</code> / <code>1234</code></div>
+            <label>Username<input name="user" required></label>
+            <label>Password<input type="password" name="pass" required></label>
+            <button class="btn" type="submit">Log in</button>
+          </form>
+          <div class="msg" id="loginMsg" hidden role="status"></div>
+        </div>
+
+        <div id="adminArea" hidden>
+          <div class="admin-bar"><span class="pill">Admin mode</span><button class="btn btn--ghost btn--sm" id="logout" type="button">Log out</button></div>
+          <div class="tabs" role="tablist">
+            <button class="tab" role="tab" aria-selected="true" data-panel="aParked" type="button">Parked</button>
+            <button class="tab" role="tab" aria-selected="false" data-panel="aSearch" type="button">Search</button>
+            <button class="tab" role="tab" aria-selected="false" data-panel="aUpdate" type="button">Update ID</button>
+            <button class="tab" role="tab" aria-selected="false" data-panel="aReport" type="button">Report</button>
+          </div>
+
+          <div class="panel" id="aParked">
+            <div class="tablewrap"><table id="parkedTable"><thead><tr><th>ID</th><th>Owner</th><th>Type</th><th>Slot</th><th>In</th><th>Peak</th></tr></thead><tbody id="parkedBody"></tbody></table></div>
+            <p class="empty" id="parkedEmpty" hidden>No vehicles are parked right now.</p>
+          </div>
+
+          <div class="panel" id="aSearch" hidden>
+            <form id="searchForm" autocomplete="off"><label>Vehicle ID<input name="id" required></label><button class="btn" type="submit">Search</button></form>
+            <div class="msg" id="searchMsg" hidden role="status"></div>
+            <div class="receipt" id="searchOut" hidden></div>
+          </div>
+
+          <div class="panel" id="aUpdate" hidden>
+            <form id="updateForm" autocomplete="off">
+              <div class="row2"><label>Current ID<input name="oldId" required></label><label>New ID<input name="newId" required></label></div>
+              <button class="btn" type="submit">Update ID</button>
+            </form>
+            <div class="msg" id="updateMsg" hidden role="status"></div>
+          </div>
+
+          <div class="panel" id="aReport" hidden>
+            <div class="report">
+              <div><b id="rRevenue">Tk 0.00</b><span>Total revenue</span></div>
+              <div><b id="rCheckouts">0</b><span>Total check-outs</span></div>
+              <div><b id="rParked">0</b><span>Currently parked</span></div>
+              <div><b id="rAvail">0</b><span>Available slots</span></div>
+              <div><b id="rUsage">0%</b><span>Slot usage</span></div>
+              <div><b style="font-size:1rem;line-height:1.7">08:00-10:00<br>17:00-20:00</b><span>Peak hours</span></div>
+            </div>
+            <h3 style="font-size:.95rem;margin:18px 0 6px">Billing history</h3>
+            <div class="tablewrap"><table><thead><tr><th>ID</th><th>Owner</th><th>Time</th><th>Fee</th></tr></thead><tbody id="billBody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <p class="foot">Built by Md Sabbir Ahmed &middot; Software Engineering, Daffodil International University</p>
+</div>
+
+<script src="js/parking.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
